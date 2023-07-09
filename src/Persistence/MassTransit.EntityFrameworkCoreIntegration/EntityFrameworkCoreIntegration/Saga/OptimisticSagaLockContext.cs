@@ -31,6 +31,7 @@ namespace MassTransit.EntityFrameworkCoreIntegration.Saga
         public async Task<IList<TSaga>> Load()
         {
             List<TSaga> instances = await _provider.GetQueryable(_context)
+                .AsTracking() //as like https://github.com/MassTransit/MassTransit/blob/861b1f2afb78eee16dfdcab2b285548b26706dbd/src/Persistence/MassTransit.EntityFrameworkCoreIntegration/EntityFrameworkCoreIntegration/Saga/OptimisticLoadQueryExecutor.cs#L22
                 .Where(_query.FilterExpression)
                 .ToListAsync(_cancellationToken)
                 .ConfigureAwait(false);

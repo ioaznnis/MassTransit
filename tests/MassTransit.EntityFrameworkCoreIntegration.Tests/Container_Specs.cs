@@ -19,6 +19,7 @@ namespace MassTransit.EntityFrameworkCoreIntegration.Tests
         [TestFixture(typeof(SqlServerTestDbParameters))]
         [TestFixture(typeof(SqlServerResiliencyTestDbParameters))]
         [TestFixture(typeof(PostgresTestDbParameters))]
+        [TestFixture(typeof(PostgresNoTrackingTestDbParameters))]
         public class Using_optimistic_concurrency<T> :
             EntityFrameworkTestFixture<T, TestInstanceDbContext>
             where T : ITestDbParameters, new()
@@ -211,6 +212,8 @@ namespace MassTransit.EntityFrameworkCoreIntegration.Tests
                 entity.Property(x => x.Key);
 
                 entity.HasKey(p => p.Key);
+
+                entity.UseXminAsConcurrencyToken();
             }
         }
 
@@ -260,7 +263,7 @@ namespace MassTransit.EntityFrameworkCoreIntegration.Tests
 
                 Event(() => Updated, x =>
                 {
-                    x.CorrelateById(m => m.Message.TestId);
+                    x.CorrelateBy((instance, context) => instance.CorrelationId == context.Message.TestId);
                     x.OnMissingInstance(i => i.Fault());
                 });
 
